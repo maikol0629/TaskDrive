@@ -5,7 +5,7 @@ import { useAuth } from '../../../../contexts/AuthContext';
 import { supabase } from '../../../../utils/supabaseClient';
 import Button from '../../atoms/Buttons/Button';
 import type { TeamWithMembers } from '../../molecules/Team/TeamCard';
-
+import TeamInviteForm from '../TeamInviteForm';
 interface TeamFormProps {
   onTeamCreated?: () => void;
   onTeamUpdated?: () => void;
@@ -238,8 +238,7 @@ const TeamForm: React.FC<TeamFormProps> = ({ onTeamCreated, onTeamUpdated, onCan
           </div>
           {showInvite && (
             <div className="mt-4">
-              {/* Aquí puedes renderizar TeamInviteForm o un input rápido para invitar */}
-              <p>Invitación rápida aquí...</p>
+              <TeamInviteForm team={team} onInviteSent={() => setShowInvite(false)} />
             </div>
           )}
         </div>

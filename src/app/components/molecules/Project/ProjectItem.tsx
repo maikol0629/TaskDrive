@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Database } from '../../../../../types/supabase';
-import { ChevronDownIcon, CalendarIcon, UsersIcon, MoreVerticalIcon, TrashIcon, EditIcon, FolderIcon } from 'lucide-react';
+import { ChevronDownIcon, CalendarIcon, MoreVerticalIcon, TrashIcon, EditIcon, FolderIcon } from 'lucide-react';
 
 type Project = Database['public']['Tables']['project']['Row'];
 type ProjectStatus = Database['public']['Enums']['project_status'];
@@ -265,10 +265,7 @@ const ProjectItem: React.FC<ProjectItemProps> = ({
           )}
         </div>
 
-        <div className="flex items-center text-xs text-gray-500">
-          <UsersIcon className="w-3 h-3 mr-1" />
-          <span>0 miembros</span>
-        </div>
+
       </div>
 
       {/* Indicador visual de que es clickable */}

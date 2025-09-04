@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Tables } from '../../../../../types/supabase';
+import { MoreVerticalIcon, TrashIcon } from 'lucide-react';
 
 export interface TeamWithMembers extends Tables<'teams'> {
   memberCount: number;
@@ -13,6 +14,7 @@ interface TeamCardProps {
   onTeamClick: (team: TeamWithMembers) => void;
   onInviteClick?: (team: TeamWithMembers) => void;
   onManageClick?: (team: TeamWithMembers) => void;
+  onDeleteTeam?: (team: TeamWithMembers) => void;
 }
 
 const TeamCard: React.FC<TeamCardProps> = ({ 
@@ -21,8 +23,11 @@ const TeamCard: React.FC<TeamCardProps> = ({
   userRole, 
   onTeamClick, 
   onInviteClick, 
-  onManageClick 
+  onManageClick,
+  onDeleteTeam
 }) => {
+  const [showActionsMenu, setShowActionsMenu] = useState(false);
+
   const getRoleColor = (role: string) => {
     switch (role) {
       case 'owner': return 'bg-purple-100 text-purple-800';
@@ -45,9 +50,18 @@ const TeamCard: React.FC<TeamCardProps> = ({
 
   const canInvite = userRole === 'owner' || userRole === 'admin';
   const canManage = userRole === 'owner' || userRole === 'admin';
+  const canDelete = userRole === 'owner' || userRole === 'admin';
+
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowActionsMenu(false);
+    if (onDeleteTeam && window.confirm('¿Estás seguro de que quieres eliminar este equipo?')) {
+      onDeleteTeam(team);
+    }
+  };
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 hover:shadow-md transition-shadow">
+    <div className="bg-white rounded-lg border border-gray-200 hover:shadow-md transition-shadow relative">
       <div 
         className="p-6 cursor-pointer"
         onClick={() => onTeamClick(team)}
@@ -63,14 +77,33 @@ const TeamCard: React.FC<TeamCardProps> = ({
               </p>
             )}
           </div>
-          
           {userRole && (
             <span className={`px-2 py-1 rounded-full text-xs font-medium ${getRoleColor(userRole)}`}>
               {getRoleLabel(userRole)}
             </span>
           )}
+          {canDelete && (
+            <div className="relative ml-2">
+              <button
+                onClick={e => { e.stopPropagation(); setShowActionsMenu(!showActionsMenu); }}
+                className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <MoreVerticalIcon className="w-4 h-4 text-gray-500" />
+              </button>
+              {showActionsMenu && (
+                <div className="absolute right-0 top-8 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10 min-w-[120px]">
+                  <button
+                    onClick={handleDelete}
+                    className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center space-x-2"
+                  >
+                    <TrashIcon className="w-4 h-4" />
+                    <span>Eliminar</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
-
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className="flex items-center space-x-2">
@@ -81,7 +114,6 @@ const TeamCard: React.FC<TeamCardProps> = ({
                 {memberCount} {memberCount === 1 ? 'miembro' : 'miembros'}
               </span>
             </div>
-            
             <div className="flex items-center space-x-2">
               <div className={`w-2 h-2 rounded-full ${team.is_active ? 'bg-green-500' : 'bg-gray-400'}`} />
               <span className="text-sm text-gray-600">
@@ -89,13 +121,11 @@ const TeamCard: React.FC<TeamCardProps> = ({
               </span>
             </div>
           </div>
-
           <div className="text-xs text-gray-500">
             {team.created_at && new Date(team.created_at).toLocaleDateString('es-ES')}
           </div>
         </div>
       </div>
-
       {/* Acciones */}
       {(canInvite || canManage) && (
         <div className="px-6 py-3 bg-gray-50 border-t border-gray-200 flex space-x-2">
@@ -113,7 +143,6 @@ const TeamCard: React.FC<TeamCardProps> = ({
               Invitar
             </button>
           )}
-          
           {canManage && onManageClick && (
             <button
               onClick={(e) => {

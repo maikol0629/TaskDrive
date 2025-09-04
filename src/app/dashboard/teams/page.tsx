@@ -142,6 +142,25 @@ export default function TeamsPage() {
     }
   };
 
+  const handleDeleteTeam = async (team: TeamWithMembers) => {
+    if (!user) return;
+    try {
+      setLoading(true);
+      setError('');
+      const { error } = await supabase
+        .from('teams')
+        .update({ is_active: false })
+        .eq('id', team.id);
+      if (error) throw error;
+      // Recargar equipos
+      await loadUserTeams();
+    } catch (error) {
+      setError(`Error al eliminar el equipo: ${error instanceof Error ? error.message : 'Error desconocido'}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -255,6 +274,7 @@ export default function TeamsPage() {
               onTeamClick={() => {}}
               onInviteClick={handleInviteClick}
               onManageClick={handleManageClick}
+              onDeleteTeam={handleDeleteTeam}
             />
           ))}
         </div>
